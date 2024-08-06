@@ -2,6 +2,7 @@
 name = "flora_parsing"
 version = "0.1.0"
 edition = "2021"
+authors = ["ilmen"]
 
 [dependencies]
 env_logger = "0.11"
