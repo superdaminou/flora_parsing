@@ -12,3 +12,5 @@ For now There is three mode availables:
 - action_time: Calculate the sum of each actions occurence at each time for every group;
 - total_action: Calculate the total elapsed time for each action for every group
 
+Inputfile should be a valid MEP-PC .txt file. 
+Outputfile is an optionnal .txt file. Default to output.txt 
