@@ -9,8 +9,6 @@ env:
 
 jobs:
   build:
-    env:
-      FILE_NAME: flora_parsing
     runs-on: ${{ matrix.os }}
     permissions: write-all
     strategy:
@@ -26,12 +24,12 @@ jobs:
       run: cargo build --release
 
     - name: 'Tar files'
-      run: tar -cvf ${{ matrix.os }}-${{ env.FILE_NAME }}.tar ./target/release
+      run: tar -cvf ${{ matrix.os }}-${{ github.event.repository.name }}.tar ./target/release
     - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.os }}-${{ env.FILE_NAME }}
-        path: ${{ matrix.os }}-${{ env.FILE_NAME }}.tar
+        name: ${{ matrix.os }}-${{ github.event.repository.name }}
+        path: ${{ matrix.os }}-${{ github.event.repository.name }}.tar
 
   release:
     needs: build
@@ -44,4 +42,8 @@ jobs:
         uses: actions/download-artifact@v4
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: './ubuntu-latest-flora_parsing/ubuntu-latest-flora_parsing.tar,./macOS-latest-flora_parsing/macOS-latest-flora_parsing.tar,./macOS-13-flora_parsing/macOS-13-flora_parsing.tar,./windows-latest-flora_parsing/windows-latest-flora_parsing.tar'
+          artifacts: | 
+            './ubuntu-latest-${{ github.event.repository.name }}/ubuntu-latest-${{ github.event.repository.name }}.tar,
+            ./macOS-latest-${{ github.event.repository.name }}/macOS-latest-${{ github.event.repository.name }}.tar,
+            ./macOS-13-${{ github.event.repository.name }}/macOS-13-${{ github.event.repository.name }}.tar,
+            ./windows-latest-${{ github.event.repository.name }}/windows-latest-${{ github.event.repository.name }}.tar'
