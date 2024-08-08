@@ -24,25 +24,20 @@ jobs:
       run: cargo test --verbose
     - name: release
       run: cargo build --release
-    
-    - name: rename
-      if: matrix.os != 'windows-latest'
-      run: mv ./target/release/${{ env.FILE_NAME }}  ./target/release/${{ matrix.os }}-${{ env.FILE_NAME }}
-    - name: rename windows
-      if: matrix.os == 'windows-latest'
-      run: mv ./target/release/${{ env.FILE_NAME }}.exe  ./target/release/${{ matrix.os }}-${{ env.FILE_NAME }}.exe
-    
+        
     - name: upload windows
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ env.FILE_NAME }}
-        path: ./target/release/${{ matrix.os }}-${{ env.FILE_NAME }}.exe
+        path: ./target/release/${{ env.FILE_NAME }}.exe
+        compression-level: 0
     - uses: actions/upload-artifact@v4
       if: matrix.os != 'windows-latest'
       with:
         name: ${{ matrix.os }}-flora_parsing
-        path: ./target/release/${{ matrix.os }}-${{ env.FILE_NAME }} 
+        path: ./target/release/${{ env.FILE_NAME }}
+        compression-level: 0 
 
   release:
     needs: build
@@ -53,8 +48,6 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
-      - name: Display structure of downloaded files
-        run: ls -R
       - uses: ncipollo/release-action@v1
         with:
           artifacts: './ubuntu-latest-flora_parsing/ubuntu-latest-flora_parsing,./macOS-latest-flora_parsing/macOS-latest-flora_parsing,./windows-latest-flora_parsing/windows-latest-flora_parsing.exe'

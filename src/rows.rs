@@ -65,8 +65,9 @@ impl Rows {
     }
 
     pub fn prettier(&self) -> String { 
-        self.0.iter().map(|r|{
-             r.datas.iter().map(|d|"Action:".to_string() +  &d.action + "; Time:" + &d.time.to_string()).collect::<Vec<String>>().join("\r\n")
+        "Action;Time\r\n".to_string() + 
+        &self.0.iter().map(|r|{
+             r.datas.iter().map(|d|d.action.clone() + ";" + &d.time.to_string()).collect::<Vec<String>>().join("\r\n")
         }).collect::<Vec<String>>().join("\r\n")
     }
 
@@ -123,6 +124,14 @@ mod tests {
         let row = &Row {identifier: "305".to_string(), datas: vec![Data::from((2147, "100")), Data::from((491, "100"))] }.to_string();
         assert_eq!(row, "305: \r\nTime: 2147, action: 100Time: 491, action: 100\r\n")
         
+    }
+
+    #[test]
+    fn prettier_rows() {
+        let one_row = &"305: 2147.100 491.100".to_string();
+        let two_row = &"310: 118.100 42.300".to_string(); 
+        let rows = Rows::from(vec![one_row, two_row]);
+        assert_eq!(rows.prettier(), "Action;Time\r\n100;2147\r\n100;491\r\n100;118\r\n300;42".to_string())
     }
 
 }
