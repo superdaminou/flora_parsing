@@ -4,6 +4,8 @@ A floral parser for specific research MED-PC files.
 This application is under construction, for any problem please create an issue. I'm no scientist, just someone with strange hobbies. 
 
 ## Basic Usage
+Get the appropriate release: https://github.com/superdaminou/flora-parser/releases
+
 In your prefered terminal: `./flora-parser <mode> <inputfile> <outputfile>[OPTIONAL]`
 
 inputfile:  MUST be a valid MEP-PC .txt file. 

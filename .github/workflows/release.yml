@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,macOS-latest,windows-latest]
+        os: [ubuntu-latest,macOS-latest,windows-latest,macOS-13]
 
     steps:
     - uses: actions/checkout@v4
@@ -24,20 +24,14 @@ jobs:
       run: cargo test --verbose
     - name: release
       run: cargo build --release
-        
-    - name: upload windows
-      if: matrix.os == 'windows-latest'
+
+    - name: 'Tar files'
+      run: tar -cvf ${{ matrix.os }}-${{ env.FILE_NAME }}.tar ./target/release
+    - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ env.FILE_NAME }}
-        path: ./target/release/${{ env.FILE_NAME }}.exe
-        compression-level: 0
-    - uses: actions/upload-artifact@v4
-      if: matrix.os != 'windows-latest'
-      with:
-        name: ${{ matrix.os }}-flora_parsing
-        path: ./target/release/${{ env.FILE_NAME }}
-        compression-level: 0 
+        path: ${{ matrix.os }}-${{ env.FILE_NAME }}.tar
 
   release:
     needs: build
@@ -50,4 +44,4 @@ jobs:
         uses: actions/download-artifact@v4
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: './ubuntu-latest-flora_parsing/ubuntu-latest-flora_parsing,./macOS-latest-flora_parsing/macOS-latest-flora_parsing,./windows-latest-flora_parsing/windows-latest-flora_parsing.exe'
+          artifacts: './ubuntu-latest-flora_parsing/ubuntu-latest-flora_parsing.tar,./macOS-latest-flora_parsing/macOS-latest-flora_parsing.tar,./macOS-13-flora_parsing/macOS-13-flora_parsing.tar,./windows-latest-flora_parsing/windows-latest-flora_parsing.tar'
