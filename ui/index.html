@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flora Parsing for MED PC files</title>
+  </head>
+  <body>
+    <h1>A floral parser</h1>
+    <p>This is specific MED-PC parser. Still under construction feel free to open discussion <a href="https://github.com/superdaminou/flora_parsing">here </a></p>
+    <div> 
+      <button onclick="execute('csv')">To CSV friendly</button>
+      <button onclick="execute('action_time')">Action by time</button>
+      <button onclick="execute('total_action')">Total time by action</button>
+    </div>
+    <div style="float:left; width: 50%">
+      <p>MED-PC content</p>
+      <textarea id="input" cols="100" rows="50" style="resize: none"></textarea>
+    </div>
+    <div style="float:right; width: 50%">
+      <p>Output</p>
+      <textarea id="output" cols="100" rows="50" style="resize: none"></textarea>
+    </div>
+    <div>
+      <p>If any error please report <a href="https://github.com/superdaminou/flora_parsing/issues/new">here</a></p>
+      <p id="error" style="color: red;"></p>
+    </div>
+
+    <script>
+      const { invoke } = window.__TAURI__.tauri
+
+      function execute(mode) {
+        var file = document.getElementById("input");
+        invoke('execute', { content: file.value, mode: mode })
+        // `invoke` returns a Promise
+        .then((response) => {
+          document.getElementById("output").textContent = response;
+        }).catch((error) => {
+          document.getElementById("error").textContent = error;
+        })
+      }
+    </script>
+
+  </body>
+</html>

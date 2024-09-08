@@ -4,7 +4,21 @@ version = "0.1.0"
 edition = "2021"
 authors = ["ilmen"]
 
+[build-dependencies]
+tauri-build = { version = "1.5.4", features = [] }
+
+
 [dependencies]
 env_logger = "0.11"
 dotenv = "0.15"
 log = "0.4"
+thiserror = { version = "1.0"}
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.7.2", features = [ "dialog-open", "dialog-message", "dialog-confirm", "dialog-ask"] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = [ "tauri/custom-protocol" ]

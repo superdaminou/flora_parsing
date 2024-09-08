@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 
-use crate::Data;
+use crate::{error::ParsingError, Data};
 
 #[derive(Debug)]
 pub struct Rows(Vec<Row>);
@@ -18,6 +18,22 @@ pub struct Row{
     datas: Vec<Data>
 }
 
+impl TryFrom<&String> for Row {
+    type Error = ParsingError;
+
+    fn try_from(value: &String) -> Result<Self, Self::Error> {
+        let identifier_data = value.trim().split_once(":").unwrap_or(("N/A", "N/A"));
+            let datas = identifier_data.1
+                .split(" ")
+                .map(|d| d.trim())
+                .filter(|l| !l.is_empty())
+                .map(|data| data.split_once(".").unwrap_or_default())
+                .map(Data::try_from)
+                .collect::<Result<Vec<Data>,ParsingError>>()?;
+            Ok(Row {identifier: identifier_data.0.to_string(), datas})
+    }
+}
+
 impl ToString for Row {
     fn to_string(&self) -> String {
         self.identifier.to_string() + ": \r\n" + 
@@ -28,21 +44,13 @@ impl ToString for Row {
     }
 }
 
-impl From<Vec<&String>> for Rows {
-    fn from(values: Vec<&String>) -> Self {
-        Rows(values.iter().map(|l| {
-            let identifier_data = l.trim().split_once(":").unwrap_or(("N/A", "N/A"));
-            let datas = identifier_data.1
-                .split(" ")
-                .map(|d| d.trim())
-                .filter(|l| !l.is_empty())
-                .map(|data| data.split_once(".").unwrap_or_default())
-                .map(Data::from)
-                .collect();
-
-
-            Row {identifier: identifier_data.0.to_string(), datas}
-        }).collect::<Vec<Row>>())
+impl TryFrom<Vec<&String>> for Rows {
+    type Error = ParsingError;
+    fn try_from(values: Vec<&String>) -> Result<Self, ParsingError> {
+        let rows = values.iter()
+            .map(|l|Row::try_from(*l))
+            .collect::<Result<_,_>>()?;
+        Ok(Rows(rows))
     }
 }
 
@@ -114,7 +122,7 @@ mod tests {
     fn test_row_from() {
         let one_row = &"305: 2147.100 491.100".to_string();
         let two_row = &"310: 118.100 42.300".to_string(); 
-        let rows = Rows::from(vec![one_row, two_row]);
+        let rows = Rows::try_from(vec![one_row, two_row]).unwrap();
         assert_eq!(rows.0.first().unwrap(), &Row {identifier: "305".to_string(), datas: vec![Data::from((2147, "100")), Data::from((491, "100"))] });
         assert_eq!(rows.0.get(1).unwrap(), &Row {identifier: "310".to_string(), datas: vec![Data::from((118, "100")), Data::from((42, "300"))] });
     }
@@ -130,7 +138,7 @@ mod tests {
     fn prettier_rows() {
         let one_row = &"305: 2147.100 491.100".to_string();
         let two_row = &"310: 118.100 42.300".to_string(); 
-        let rows = Rows::from(vec![one_row, two_row]);
+        let rows = Rows::try_from(vec![one_row, two_row]).unwrap();
         assert_eq!(rows.prettier(), "Action;Time\r\n100;2147\r\n100;491\r\n100;118\r\n300;42".to_string())
     }
 

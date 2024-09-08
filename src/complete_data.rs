@@ -1,6 +1,7 @@
+
 use log::debug;
 
-use crate::{rows::Rows, Group, Header, Value};
+use crate::{error::ParsingError, rows::Rows, Group, Header, Value};
 
 
 #[derive(Debug)]
@@ -37,22 +38,26 @@ pub trait ToContent {
 }
 
 
-impl From<&Group> for CompleteData {
-    fn from(group: &Group) -> Self {
+impl TryFrom<&Group> for CompleteData {
+    type Error = ParsingError;
+    fn try_from(group: &Group) -> Result<Self,ParsingError> {
         debug!("Creating Complete Data From: {}", group.join("\r\n"));
         let key_value: (&str, &str);
 
         if group.len() == 1 {
             key_value =group.first()
-                .and_then(|simple_value| simple_value.split_once(':')).unwrap();
-            CompleteData(key_value.0.to_string(), Value::SimpleValue(key_value.1.to_string()))
+                .and_then(|simple_value| simple_value.split_once(':'))
+                .ok_or_else(|| ParsingError::DefaultError(format!("Error while parsing {}", group.first().unwrap_or(&"NO DATA".to_string()))))?;
+            Ok(CompleteData(key_value.0.to_string(), Value::SimpleValue(key_value.1.to_string())))
         } else if group.len() > 1 {
             let key =group.first()
-                .and_then(|simple_value| simple_value.split_once(':')).unwrap().0;
-            let rows: Rows = Rows::from(group.iter().skip(1).collect::<Vec<&String>>());
-            return CompleteData(key.to_string(), Value::Rows(rows));
+                .and_then(|simple_value| simple_value.split_once(':'))
+                .ok_or_else(|| ParsingError::DefaultError("Error while parsing {}".to_string()))?
+                .0;
+            let rows: Rows = Rows::try_from(group.iter().skip(1).collect::<Vec<&String>>())?;
+            return Ok(CompleteData(key.to_string(), Value::Rows(rows)));
         } else {
-            return CompleteData("N/A".to_string(), Value::SimpleValue("N/A".to_string()));
+            return Ok(CompleteData("N/A".to_string(), Value::SimpleValue("N/A".to_string())));
         }
     }
 }
