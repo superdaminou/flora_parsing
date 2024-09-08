@@ -1,49 +1,51 @@
-name: Release
+name: "publish"
 
-on: 
+on:
   push:
-    tags:
-      - '*'
-env:
-  CARGO_TERM_COLOR: always
+    branches:
+      - release
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    permissions: write-all
+  publish-tauri:
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,macOS-latest,windows-latest,macOS-13]
+        include:
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest" # for Intel based macs.
+            args: "--target x86_64-apple-darwin"
+          - platform: "ubuntu-22.04"
+            args: ""
+          - platform: "windows-latest"
+            args: ""
 
+    runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Run tests
-      run: cargo test --verbose
-    - name: release
-      run: cargo build --release
+      - uses: actions/checkout@v4
 
-    - name: 'Tar files'
-      run: tar -cvf ${{ matrix.os }}-${{ github.event.repository.name }}.tar ./target/release
-    - name: upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.os }}-${{ github.event.repository.name }}
-        path: ${{ matrix.os }}-${{ github.event.repository.name }}.tar
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions: write-all
-    strategy:
-      fail-fast: false 
-    steps:
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
-      - uses: ncipollo/release-action@v1
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
         with:
-          artifacts: | 
-            './ubuntu-latest-${{ github.event.repository.name }}/ubuntu-latest-${{ github.event.repository.name }}.tar,
-            ./macOS-latest-${{ github.event.repository.name }}/macOS-latest-${{ github.event.repository.name }}.tar,
-            ./macOS-13-${{ github.event.repository.name }}/macOS-13-${{ github.event.repository.name }}.tar,
-            ./windows-latest-${{ github.event.repository.name }}/windows-latest-${{ github.event.repository.name }}.tar'
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev  libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+        # You can remove the one that doesn't apply to your app to speed up the workflow a bit.
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          releaseName: "App v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
