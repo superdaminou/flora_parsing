@@ -34,7 +34,7 @@
         invoke('execute', { content: file.value, mode: mode })
         // `invoke` returns a Promise
         .then((response) => {
-          document.getElementById("output").textContent = response;
+          document.getElementById("output").value = response;
         }).catch((error) => {
           document.getElementById("error").textContent = error;
         })

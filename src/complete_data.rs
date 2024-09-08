@@ -15,10 +15,10 @@ impl ToContent for CompleteData {
         }
     } 
 
-    fn prettier(&self) -> String{
+    fn csv_prettier(&self) -> String{
         match &self.1 {
             Value::SimpleValue(v) => self.0.clone() +": " + v + "\r\n",
-            Value::Rows(rows) =>self.0.clone() +": \r\n" + &rows.prettier() + "\r\n"
+            Value::Rows(rows) =>self.0.clone() +": \r\n" + &rows.csv_prettier() + "\r\n"
         }
     }   
 
@@ -33,7 +33,7 @@ impl ToContent for CompleteData {
 
 pub trait ToContent {
     fn total_by_action(&self) -> String;
-    fn prettier(&self) -> String;
+    fn csv_prettier(&self) -> String;
     fn cumul_action(&self) -> String;
 }
 

@@ -14,10 +14,10 @@ Simple parsing to ease manipulation and produce something similar to csv content
 
 ```
 A: 
-Action;Time
-000;5
-000;60
-000;30
+Action;Time;
+000;5;
+000;60;
+000;30;
 ```
 
 #### action_time

@@ -79,7 +79,7 @@ fn execute(content: &str, mode: &str ) -> Result<String, ParsingError> {
             match mode {
                 "total_action" => data.total_by_action(),
                 "action_time" => data.cumul_action(),
-                "csv" => data.prettier(),
+                "csv" => data.csv_prettier(),
                 _ => panic!("Unknonw mode {}", mode)
             }
         })

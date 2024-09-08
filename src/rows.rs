@@ -72,10 +72,10 @@ impl Rows {
             .join("\r\n")
     }
 
-    pub fn prettier(&self) -> String { 
-        "Action;Time\r\n".to_string() + 
+    pub fn csv_prettier(&self) -> String { 
+        "Action;Time;\r\n".to_string() + 
         &self.0.iter().map(|r|{
-             r.datas.iter().map(|d|d.action.clone() + ";" + &d.time.to_string()).collect::<Vec<String>>().join("\r\n")
+             r.datas.iter().map(|d|d.action.clone() + ";" + &d.time.to_string() +";").collect::<Vec<String>>().join("\r\n")
         }).collect::<Vec<String>>().join("\r\n")
     }
 
@@ -139,7 +139,7 @@ mod tests {
         let one_row = &"305: 2147.100 491.100".to_string();
         let two_row = &"310: 118.100 42.300".to_string(); 
         let rows = Rows::try_from(vec![one_row, two_row]).unwrap();
-        assert_eq!(rows.prettier(), "Action;Time\r\n100;2147\r\n100;491\r\n100;118\r\n300;42".to_string())
+        assert_eq!(rows.csv_prettier(), "Action;Time;\r\n100;2147;\r\n100;491;\r\n100;118;\r\n300;42;".to_string())
     }
 
 }
