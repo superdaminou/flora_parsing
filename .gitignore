@@ -1,3 +1,6 @@
 /target
 file.txt
 output.txt
+/gen
+/capabilities
+/.vscode

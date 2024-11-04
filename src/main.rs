@@ -1,89 +1,30 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::str::FromStr;
 
-use complete_data::{CompleteData, ToContent};
-use data::Data;
-use error::ParsingError;
-use rows::Rows;
-mod rows;
 use dotenv::dotenv;
+use error::ParsingError;
 use log::info;
-mod complete_data;
-mod data;
+use parser::{parse, Mode};
 mod error;
+mod parser;
 
 fn main() {
     dotenv().ok();
     env_logger::init();
 
     tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![execute])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+        .plugin(tauri_plugin_dialog::init())
+        .invoke_handler(tauri::generate_handler![execute])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
-
-type Group= Vec<String>;
-type Groups= Vec<Group>;
-
- 
- fn extract_groups(content: &str) -> Result<Groups, ParsingError>{
-    info!("Starting group extraction");
-    let mut groups : Groups = vec![];
-    let lines = content.lines();
-
-    let mut group : Group = vec![];
-    lines.filter(|l|!l.trim().is_empty()).for_each(|l| {
-        if !l.starts_with(" ") {
-            groups.push(group.clone());
-            group = vec![];
-            group.push(l.to_string());
-        } else {
-            group.push(l.to_string())
-        }
-    });
-    groups.push(group.clone());
-    Ok(groups)
- }
-
-type Header = String;
-#[derive(Debug)]
-enum Value {
-    SimpleValue(String),
-    Rows(Rows)
-}
-
-impl ToString for Value {
-    fn to_string(&self) -> String {
-        match self {
-            Value::SimpleValue(value) => value.to_string(),
-            Value::Rows(rows) => rows.to_string(),
-        }
-    }
-}
-
 
 #[tauri::command]
-fn execute(content: &str, mode: &str ) -> Result<String, ParsingError> {
-    let groups : Groups = extract_groups(content)?;
-    
-
-    let complete_datas = groups.iter()
-        .map(CompleteData::try_from)
-        .collect::<Result<Vec<CompleteData>,ParsingError>>()?;
-
-
-    info!("Executing  {}", mode);
-    let output_content = complete_datas.iter()
-        .map(|data|{
-            match mode {
-                "total_action" => data.total_by_action(),
-                "action_time" => data.cumul_action(),
-                "csv" => data.csv_prettier(),
-                _ => panic!("Unknonw mode {}", mode)
-            }
-        })
-        .collect::<Vec<String>>()
-        .join("\r\n");
-    Ok(output_content)
+fn execute(content: &str, mode: &str) -> Result<String, ParsingError> {
+    info!("Start parsing");
+    Mode::from_str(mode)
+        .map_err(|e|ParsingError::DefaultError("Could not parse mode".to_string()))
+        .and_then(|mode| parse(content, mode))
 }

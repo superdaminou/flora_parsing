@@ -14,7 +14,7 @@
       <button onclick="execute('total_action')">Total time by action</button>
     </div>
     <div style="float:left; width: 50%">
-      <p>MED-PC content</p>
+      <p>Paste the MED-PC file content under</p>
       <textarea id="input" cols="100" rows="50" style="resize: none"></textarea>
     </div>
     <div style="float:right; width: 50%">
@@ -27,10 +27,11 @@
     </div>
 
     <script>
-      const { invoke } = window.__TAURI__.tauri
+      const { invoke } = window.__TAURI__.core
 
       function execute(mode) {
         var file = document.getElementById("input");
+        console.log("yolo");
         invoke('execute', { content: file.value, mode: mode })
         // `invoke` returns a Promise
         .then((response) => {

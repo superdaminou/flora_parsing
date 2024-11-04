@@ -20,7 +20,7 @@ Action;Time;
 000;30;
 ```
 
-#### action_time
+#### Action by time
 Calculate the sum of each actions occurence at each time for every group;
 ```
 Time 7381:  
@@ -31,7 +31,7 @@ Actions: 600, occurences: 20
 Actions: 100, occurences: 267
 ```
 
-#### total_action
+#### Total time by action
 Calculate the total elapsed time for each action for every group
 ```
 C: 
