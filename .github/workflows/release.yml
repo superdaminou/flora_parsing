@@ -45,7 +45,7 @@ jobs:
         with:
           tagName: flora_parsing-v__VERSION__
           releaseName: "App v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
+          releaseBody: "Get the appropriate executable for your system. See: https://doc.rust-lang.org/nightly/rustc/platform-support.html"
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

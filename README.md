@@ -13,11 +13,13 @@ For now there is three mode availables:
 Simple parsing to ease manipulation and produce something similar to csv content.
 
 ```
-A: 
-Action;Time;
-000;5;
-000;60;
-000;30;
+C: 
+Time;Action;Occurences;
+0;;
+  ;500;1;
+2521;;
+  ;500;1;
+  ;100;1;
 ```
 
 #### Action by time
@@ -35,9 +37,10 @@ Actions: 100, occurences: 267
 Calculate the total elapsed time for each action for every group
 ```
 C: 
-Action: 100, Total Time: 329663
-Action: 500, Total Time: 0
-Action: 200, Total Time: 0
-Action: 600, Total Time: 22956
-Action: 310, Total Time: 7381
+Action;Total Time;
+500;0;
+310;7381;
+600;22956;
+100;329663;
+200;0;
 ```

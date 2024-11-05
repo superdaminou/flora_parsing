@@ -11,20 +11,14 @@ pub use mode::Mode;
 
 
 pub fn parse(content: &str, mode: Mode) -> Result<String, ParsingError> {
-    let groups: Groups = extract_groups(content)?;
-    
-    let complete_datas = groups
+    Ok(extract_groups(content)?
         .iter()
         .map(CompleteData::try_from)
-        .collect::<Result<Vec<CompleteData>, ParsingError>>()?;
-    
-    let output_content = complete_datas
+        .collect::<Result<Vec<CompleteData>, ParsingError>>()?
         .iter()
         .map(|data| mode.execute(data))
         .collect::<Vec<String>>()
-        .join("\r\n");
-    
-    Ok(output_content)
+        .join("\r\n"))
 }
 
 type Group = Vec<String>;

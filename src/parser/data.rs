@@ -9,10 +9,6 @@ pub struct Data {
 }
 
 impl Data {
-    pub fn csv_compliant(&self) -> String {
-        self.time.to_string() + ";" + &self.action
-    }
-
     pub fn prettier(&self) -> String {
         "Time: ".to_string() + &self.time.to_string() + ", action: " + &self.action.to_string()
     }
@@ -51,12 +47,6 @@ mod tests {
         let data = Data::try_from(("32", "autre")).unwrap();
         assert_eq!(data.time, 32);
         assert_eq!(data.action, "autre".to_string())
-    }
-
-    #[test]
-    fn data_to_csv() {
-        let result = Data::try_from(("32", "autre")).unwrap().csv_compliant();
-        assert_eq!(result, "32;autre".to_string());
     }
 
     #[test]

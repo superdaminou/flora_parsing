@@ -5,7 +5,6 @@ use std::str::FromStr;
 
 use dotenv::dotenv;
 use error::ParsingError;
-use log::info;
 use parser::{parse, Mode};
 mod error;
 mod parser;
@@ -23,8 +22,7 @@ fn main() {
 
 #[tauri::command]
 fn execute(content: &str, mode: &str) -> Result<String, ParsingError> {
-    info!("Start parsing");
     Mode::from_str(mode)
-        .map_err(|e|ParsingError::DefaultError("Could not parse mode".to_string()))
+        .map_err(|_|ParsingError::DefaultError(format!("Could not parse mode: {}", mode)))
         .and_then(|mode| parse(content, mode))
 }
